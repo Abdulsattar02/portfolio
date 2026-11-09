@@ -1,0 +1,14 @@
+# Local tooling and notes
+.claude/
+CLAUDE.md
+TODO.md
+
+# Backup of the old version and the unused full-size photo
+_previous/
+abdulsattarmaher.png
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.vercel
