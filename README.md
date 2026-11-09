@@ -84,7 +84,7 @@ Search the project for `[PLACEHOLDER]`.
 | What | Where |
 |---|---|
 | ~~Web3Forms access key~~ | done (set in `index.html`) |
-| Site address | `index.html` `<head>`, 4 × `YOUR-DOMAIN.vercel.app` |
+| ~~Site address~~ | done: https://abdulsattarmaher.vercel.app |
 | Perfume Store live link | `index.html`, the "Live demo soon" button in the Tehreem Perfume Store card |
 | "Available for work" badge (optional) | `index.html`, first line of the hero. Delete it if you are not looking. |
 | Photo (only if you want a new one) | replace `abdulsattarmaher.jpg` and both `.webp` files, keeping the names. Use a square-ish photo with your face in the upper middle. |
