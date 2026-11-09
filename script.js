@@ -128,6 +128,59 @@
     document.documentElement.addEventListener("mouseleave", function () { cursor.classList.remove("is-visible"); });
   }
 
+  /* ---------- GitHub activity: refresh the snapshot with live data ---------- */
+  var ghGrid = $("#gh-grid");
+  var ghScroll = $("#gh-scroll");
+  // On narrow screens show the most recent weeks first
+  if (ghScroll) ghScroll.scrollLeft = ghScroll.scrollWidth;
+
+  if (ghGrid && window.fetch) {
+    var CACHE = "gh-contrib-v1";
+    var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+    var renderGh = function (days) {
+      if (!days || days.length < 300) return;
+      days.sort(function (a, b) { return a.date < b.date ? -1 : 1; });
+      var first = new Date(days[0].date + "T00:00:00");
+      var pad = first.getDay(); // Sunday = 0
+      var total = 0, cells = [], months = [], prev = "";
+      for (var p = 0; p < pad; p++) cells.push('<i class="gh-pad"></i>');
+      days.forEach(function (d, idx) {
+        var dt = new Date(d.date + "T00:00:00");
+        var label = dt.getDate() + " " + MONTHS[dt.getMonth()] + " " + dt.getFullYear();
+        var lvl = Math.max(0, Math.min(4, d.level | 0));
+        total += d.count;
+        cells.push('<i class="l' + lvl + '" title="' + (d.count ? d.count + " contribution" + (d.count === 1 ? "" : "s") + " on " : "No contributions on ") + label + '"></i>');
+        var key = dt.getFullYear() + "-" + dt.getMonth();
+        if ((dt.getDate() === 1 || idx === 0) && key !== prev && !(idx === 0 && dt.getDate() > 20)) {
+          months.push('<span style="grid-column:' + (Math.floor((idx + pad) / 7) + 1) + '">' + MONTHS[dt.getMonth()] + "</span>");
+          prev = key;
+        }
+      });
+      $("#gh-cal").style.setProperty("--weeks", Math.ceil(cells.length / 7));
+      ghGrid.innerHTML = cells.join("");
+      ghGrid.setAttribute("aria-label", "GitHub contribution calendar: " + total + " contributions in the last year");
+      $("#gh-months").innerHTML = months.join("");
+      $("#gh-total").textContent = total;
+      if (ghScroll) ghScroll.scrollLeft = ghScroll.scrollWidth;
+    };
+
+    var cached = null;
+    try { cached = JSON.parse(sessionStorage.getItem(CACHE)); } catch (e) {}
+    if (cached) {
+      renderGh(cached);
+    } else {
+      fetch("https://github-contributions-api.jogruber.de/v4/Abdulsattar02?y=last")
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (j) {
+          if (!j || !j.contributions) return;
+          renderGh(j.contributions);
+          try { sessionStorage.setItem(CACHE, JSON.stringify(j.contributions)); } catch (e) {}
+        })
+        .catch(function () { /* keep the snapshot */ });
+    }
+  }
+
   /* ---------- Contact form → Web3Forms → your inbox ---------- */
   var form = $("#contact-form");
   if (form) {
